@@ -13,6 +13,8 @@ public class MeshGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // chunk 
+        // position
+        // number of voxels
     }
 }
