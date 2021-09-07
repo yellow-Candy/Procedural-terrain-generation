@@ -1,6 +1,21 @@
 #pragma kernel March
 
-#include include/NoiseGenerator.compute
+#include "/include/MarchTables.compute"
+#include "/include/Noise.compute"
+
+
+float4 sampleAt(float3 pos) {
+    float4 point_values;
+
+    //pos = centre + id * spacing - boundsSize / 2;
+
+    //float spaceVal = -pos.y;
+    float spaceVal = snoise(pos);
+
+    point_values = float4(pos, spaceVal);
+
+    return point_values;
+}
 
 
 static const int numThreads = 8;
@@ -26,7 +41,7 @@ float3 interpolateVerts(float4 v1, float4 v2) {
 
 
 [numthreads(8,8,1)]
-void March (uint3 id : SV_DispatchThreadID)
+void March (int3 id : SV_DispatchThreadID)
 {
     // Stop one point before the end because voxel includes neighbouring points
     if (id.x >= numPointsPerAxis - 1 || id.y >= numPointsPerAxis - 1 || id.z >= numPointsPerAxis - 1) {

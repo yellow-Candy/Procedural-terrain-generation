@@ -9,56 +9,55 @@ public class MeshGenerator : MonoBehaviour
     const int threadGroupSize = 8;
 
     public bool autoUpdateInEditor = true;
-    public bool autoUpdateInGame = true;
     public ComputeShader shader;
 
-    [Range(2, 1000)]
+    [Range(2, 100)]
     public int numPointsPerAxis = 30;
     public float isoLevel;
-
-    bool settingsUpdated;
+    bool settingsUpdated = true;
 
     ComputeBuffer triangleBuffer;
     ComputeBuffer triCountBuffer;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    Mesh mesh;
 
-    // Update is called once per frame
-    void Update()
-    {
+    public float boundsSize = 1;
 
+    [Header("Gizmos")]
+    public bool showBoundsGizmo = true;
+    public Color boundsGizmoCol = Color.white;
+
+
+    void Update() {
         if (settingsUpdated) {
             RequestMeshUpdate();
             settingsUpdated = false;
         }
-        // chunk 
-        // position
-        // number of voxels
     }
 
+    
+    
     public void Run() {
-        CreateBuffers();
-
-        UpdateChunkMesh();
+        DrawMesh();
     }
 
+    
+    
     public void RequestMeshUpdate() {
         if (!Application.isPlaying && autoUpdateInEditor) {
             Run();
         }
     }
 
-    public void UpdateChunkMesh(Chunk chunk) {
+    
+    
+    
+    public void DrawMesh() {
         int numVoxelsPerAxis = numPointsPerAxis - 1;
         int numThreadsPerAxis = Mathf.CeilToInt(numVoxelsPerAxis / (float)threadGroupSize);
 
         int numVoxels = numVoxelsPerAxis * numVoxelsPerAxis * numVoxelsPerAxis;
         int maxTriangleCount = numVoxels * 5;
-
 
 
         triangleBuffer = new ComputeBuffer(maxTriangleCount, sizeof(float) * 3 * 3, ComputeBufferType.Append);
@@ -79,15 +78,20 @@ public class MeshGenerator : MonoBehaviour
         triCountBuffer.GetData(triCountArray);
         int numTris = triCountArray[0];
 
-
+        Debug.Log("num of triangles : " + numTris);
         
         // Get triangle data from shader
         Triangle[] tris = new Triangle[numTris];
         triangleBuffer.GetData(tris, 0, 0, numTris);
 
-        
-        
-        Mesh mesh = chunk.mesh;
+
+        Debug.Log("triangle at [0][0] : " + tris[0][0]);
+
+        // generate mesh
+        if (mesh == null) {
+            mesh = new Mesh();
+        }
+
         mesh.Clear();
 
         var vertices = new Vector3[numTris * 3];
@@ -99,11 +103,26 @@ public class MeshGenerator : MonoBehaviour
                 vertices[i * 3 + j] = tris[i][j];
             }
         }
+
+        Debug.Log("first triagnle : " + meshTriangles[9]);
+        Debug.Log("first triagnle : " + meshTriangles[9]);
+
         mesh.vertices = vertices;
         mesh.triangles = meshTriangles;
 
         mesh.RecalculateNormals();
+
+        GetComponent<MeshFilter>().mesh = mesh;
+
+        triangleBuffer.Dispose();
+        triCountBuffer.Dispose();
     }
+
+
+    void OnValidate() {
+        settingsUpdated = true;
+    }
+
 
 
     struct Triangle {
@@ -125,5 +144,12 @@ public class MeshGenerator : MonoBehaviour
             }
         }
     }
+
+    void OnDrawGizmos() {
+        Vector3 coord = new Vector3(0, 0, 0);
+        Gizmos.color = boundsGizmoCol;
+        Gizmos.DrawWireCube( coord , Vector3.one * boundsSize);
+    }
+
 
 }
