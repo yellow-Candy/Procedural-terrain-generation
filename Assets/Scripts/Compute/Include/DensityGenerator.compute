@@ -1,0 +1,20 @@
+#include "/Noise.compute"
+
+
+int numPointsPerAxis;
+float isoLevel;
+
+
+
+float4 sampleAt(float3 pos) {
+    float4 point_values;
+
+    //pos = centre + id * spacing - boundsSize / 2;
+
+    //float spaceVal = -pos.y;
+    float spaceVal = snoise(pos);
+
+    point_values = float4(pos, spaceVal);
+
+    return point_values;
+}

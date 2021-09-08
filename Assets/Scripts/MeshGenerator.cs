@@ -77,15 +77,11 @@ public class MeshGenerator : MonoBehaviour
         int[] triCountArray = { 0 };
         triCountBuffer.GetData(triCountArray);
         int numTris = triCountArray[0];
-
-        Debug.Log("num of triangles : " + numTris);
         
         // Get triangle data from shader
         Triangle[] tris = new Triangle[numTris];
         triangleBuffer.GetData(tris, 0, 0, numTris);
 
-
-        Debug.Log("triangle at [0][0] : " + tris[0][0]);
 
         // generate mesh
         if (mesh == null) {
@@ -104,8 +100,6 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log("first triagnle : " + meshTriangles[9]);
-        Debug.Log("first triagnle : " + meshTriangles[9]);
 
         mesh.vertices = vertices;
         mesh.triangles = meshTriangles;
