@@ -31,7 +31,7 @@ public class VolumetricTerrainGenerator : MonoBehaviour
 
     void Update() {
         if (settingsUpdated) {
-            VolTerrainMeshGenerator meshGenerator = new VolTerrainMeshGenerator(threadGroupSize, autoUpdateInEditor, numPointsPerAxis, isoLevel, settingsUpdated, boundsSize, shader);
+            VolTerrainMeshGenerator meshGenerator = new VolTerrainMeshGenerator(threadGroupSize, autoUpdateInEditor, numPointsPerAxis, isoLevel, boundsSize, shader);
             meshGenerator.RequestMeshUpdate();
             settingsUpdated = false;
         }

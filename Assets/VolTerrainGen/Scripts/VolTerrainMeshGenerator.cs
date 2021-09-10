@@ -9,11 +9,10 @@ public class VolTerrainMeshGenerator
     public int threadGroupSize;
 
     public bool autoUpdateInEditor;
-    public ComputeShader shader;
+    public ComputeShader marchingCube;
 
     public int numPointsPerAxis;
     public float isoLevel;
-    public bool settingsUpdated;
 
 
     public float boundsSize;
@@ -26,15 +25,14 @@ public class VolTerrainMeshGenerator
     Mesh mesh;
 
 
-    public VolTerrainMeshGenerator(int threadGroupSize, bool autoUpdateInEditor, int numPointsPerAxis, float isoLevel, bool settingsUpdated, float boundsSize, ComputeShader shader) {
+    public VolTerrainMeshGenerator(int threadGroupSize, bool autoUpdateInEditor, int numPointsPerAxis, float isoLevel, float boundsSize, ComputeShader shader) {
         this.threadGroupSize = threadGroupSize;
 
         this.autoUpdateInEditor = autoUpdateInEditor;
-        this.shader = shader;
+        marchingCube = shader;
 
         this.numPointsPerAxis = numPointsPerAxis;
         this.isoLevel = isoLevel;
-        this.settingsUpdated = settingsUpdated;
 
 
         this.boundsSize = boundsSize;
@@ -43,7 +41,7 @@ public class VolTerrainMeshGenerator
 
     
     public void Run() {
-        DrawMesh();
+        initMarchingCube();
     }
 
     
@@ -57,7 +55,7 @@ public class VolTerrainMeshGenerator
     
     
     
-    public void DrawMesh() {
+    public void initMarchingCube() {
         int numVoxelsPerAxis = numPointsPerAxis - 1;
         int numThreadsPerAxis = Mathf.CeilToInt(numVoxelsPerAxis / (float)threadGroupSize);
 
@@ -69,11 +67,11 @@ public class VolTerrainMeshGenerator
         triCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
 
         triangleBuffer.SetCounterValue(0);
-        shader.SetBuffer(0, "triangles", triangleBuffer);
-        shader.SetInt("numPointsPerAxis", numPointsPerAxis);
-        shader.SetFloat("isoLevel", isoLevel);
+        marchingCube.SetBuffer(0, "triangles", triangleBuffer);
+        marchingCube.SetInt("numPointsPerAxis", numPointsPerAxis);
+        marchingCube.SetFloat("isoLevel", isoLevel);
 
-        shader.Dispatch(0, numThreadsPerAxis, numThreadsPerAxis, numThreadsPerAxis);
+        marchingCube.Dispatch(0, numThreadsPerAxis, numThreadsPerAxis, numThreadsPerAxis);
 
 
 
@@ -83,13 +81,13 @@ public class VolTerrainMeshGenerator
         triCountBuffer.GetData(triCountArray);
         int numTris = triCountArray[0];
         
-        // Get triangle data from shader
+        // Get triangle data from marchingCube
         Triangle[] tris = new Triangle[numTris];
         triangleBuffer.GetData(tris, 0, 0, numTris);
 
 
         // generate mesh
-        meshGneerator(numTris, tris);
+        meshGenerator(numTris, tris);
 
         triangleBuffer.Dispose();
         triangleBuffer.Release();
@@ -97,7 +95,9 @@ public class VolTerrainMeshGenerator
         triCountBuffer.Release();
     }
 
-    void meshGneerator(int numTris, Triangle[] tris) {
+
+    // Generate mesh and set it in meshfilter
+    void meshGenerator(int numTris, Triangle[] tris) {
         if (mesh == null) {
             mesh = new Mesh();
         }
