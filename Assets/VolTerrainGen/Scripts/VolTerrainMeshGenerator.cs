@@ -4,8 +4,7 @@ using UnityEngine;
 
 
 
-public class VolTerrainMeshGenerator
-{
+public class VolTerrainMeshGenerator {
     public int threadGroupSize;
 
     public bool autoUpdateInEditor;
@@ -41,7 +40,7 @@ public class VolTerrainMeshGenerator
 
     
     public void Run() {
-        initMarchingCube();
+        InitMarchingCube();
     }
 
     
@@ -55,7 +54,7 @@ public class VolTerrainMeshGenerator
     
     
     
-    public void initMarchingCube() {
+    public void InitMarchingCube() {
         int numVoxelsPerAxis = numPointsPerAxis - 1;
         int numThreadsPerAxis = Mathf.CeilToInt(numVoxelsPerAxis / (float)threadGroupSize);
 
@@ -87,17 +86,20 @@ public class VolTerrainMeshGenerator
 
 
         // generate mesh
-        meshGenerator(numTris, tris);
+        MeshGenerator(numTris, tris);
 
         triangleBuffer.Dispose();
-        triangleBuffer.Release();
+        //triangleBuffer.Release();
         triCountBuffer.Dispose();
-        triCountBuffer.Release();
+        //triCountBuffer.Release();
+
+        //System.GC.SuppressFinalize(triangleBuffer);
+        //System.GC.SuppressFinalize(triCountBuffer);
     }
 
 
     // Generate mesh and set it in meshfilter
-    void meshGenerator(int numTris, Triangle[] tris) {
+    void MeshGenerator(int numTris, Triangle[] tris) {
         if (mesh == null) {
             mesh = new Mesh();
         }

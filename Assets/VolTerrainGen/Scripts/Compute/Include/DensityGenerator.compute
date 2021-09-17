@@ -12,7 +12,7 @@ float4 sampleAt(float3 pos) {
     //pos = centre + id * spacing - boundsSize / 2;
 
     //float spaceVal = -pos.y;
-    float spaceVal = snoise(pos);
+    float spaceVal = snoise(pos) * 55;
 
     point_values = float4(pos, spaceVal);
 

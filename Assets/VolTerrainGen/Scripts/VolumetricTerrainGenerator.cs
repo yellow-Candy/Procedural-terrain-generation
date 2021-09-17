@@ -9,7 +9,7 @@ public class VolumetricTerrainGenerator : MonoBehaviour
     public const int threadGroupSize = 8;
 
     public bool autoUpdateInEditor = true;
-    public ComputeShader shader;
+    public ComputeShader marchingCube;
 
     [Range(2, 100)]
     public int numPointsPerAxis = 30;
@@ -22,16 +22,22 @@ public class VolumetricTerrainGenerator : MonoBehaviour
     [Header("Gizmos")]
     public bool showBoundsGizmo = true;
     public Color boundsGizmoCol = Color.white;
-
+    VolTerrainMeshGenerator meshGenerator;
 
     private void Start() {
+        if (!gameObject.GetComponent<MeshFilter>()) {
+            gameObject.AddComponent<MeshFilter>();
+        } 
+        if (!gameObject.GetComponent<MeshRenderer>()) {
+            gameObject.AddComponent<MeshRenderer>();
+        }
 
     }
 
 
     void Update() {
         if (settingsUpdated) {
-            VolTerrainMeshGenerator meshGenerator = new VolTerrainMeshGenerator(threadGroupSize, autoUpdateInEditor, numPointsPerAxis, isoLevel, boundsSize, shader);
+            meshGenerator = new VolTerrainMeshGenerator(threadGroupSize, autoUpdateInEditor, numPointsPerAxis, isoLevel, boundsSize, marchingCube);
             meshGenerator.RequestMeshUpdate();
             settingsUpdated = false;
         }
