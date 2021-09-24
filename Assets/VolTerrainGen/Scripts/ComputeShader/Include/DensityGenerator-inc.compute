@@ -1,0 +1,17 @@
+#include "/Noise.compute"
+
+
+
+
+
+float4 sampleAt(float3 pos) {
+
+	float spaceVal = snoise(pos);
+	float flat = -pos.y;
+
+
+	float4 point_values;
+	point_values = float4(pos.x, pos.y, pos.z, spaceVal);
+	
+	return point_values;
+}
